@@ -1,0 +1,50 @@
+language: cpp
+dist: xenial
+
+os:
+  - linux
+compiler:
+  - clang
+
+env:
+  - BUILD_TYPE=Release
+  - BUILD_TYPE=Debug
+
+matrix:
+  include:
+    - os: linux
+      compiler: gcc
+      addons:
+        apt:
+          sources:
+            - ubuntu-toolchain-r-test
+          packages:
+            - g++-8
+      env:
+        - MATRIX_EVAL="CC=gcc-8 && CXX=g++-8"
+        - BUILD_TYPE=Release
+
+    - os: linux
+      compiler: gcc
+      addons:
+        apt:
+          sources:
+            - ubuntu-toolchain-r-test
+          packages:
+            - g++-8
+      env:
+        - MATRIX_EVAL="CC=gcc-8 && CXX=g++-8"
+        - BUILD_TYPE=Debug
+
+before_script:
+  - eval "${MATRIX_EVAL}"
+  - sudo apt-get install -qq libgtest-dev
+  - (cd /usr/src/gtest && sudo env "PATH=$PATH" cmake . && sudo env "PATH=$PATH" make && sudo cp *.a /usr/lib)
+  - mkdir build
+  - cd build
+
+script:
+  - cmake .. -DCMAKE_BUILD_TYPE=${BUILD_TYPE} -DPLEIONE_DOC=OFF
+  - make VERBOSE=1
+  - make test
+
