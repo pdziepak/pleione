@@ -44,7 +44,7 @@ before_script:
   - cd build
 
 script:
-  - cmake .. -DCMAKE_BUILD_TYPE=${BUILD_TYPE} -DPLEIONE_DOC=OFF
+  - cmake .. -DCMAKE_BUILD_TYPE=${BUILD_TYPE} -DPLEIONE_DOC=OFF -DCMAKE_EXE_LINKER_FLAGS=-fuse-ld=gold
   - make VERBOSE=1
   - make test
 
