@@ -31,6 +31,13 @@ include(GNUInstallDirs)
 
 option(PLEIONE_DOC "Build pleione documentation." ON)
 
+list(APPEND PLEIONE_CXX_FLAGS -Wall -Wextra -Wpedantic -Werror)
+list(APPEND PLEIONE_CXX_DEBUG_FLAGS -fsanitize=address -fsanitize=undefined)
+
+if(CMAKE_BUILD_TYPE STREQUAL Debug)
+  list(APPEND PLEIONE_CXX_FLAGS ${PLEIONE_CXX_DEBUG_FLAGS})
+endif()
+
 add_library(pleione INTERFACE)
 target_include_directories(pleione INTERFACE $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include/>)
 target_include_directories(pleione SYSTEM INTERFACE $<INSTALL_INTERFACE:$<INSTALL_PREFIX>/include>)
