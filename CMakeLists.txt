@@ -30,6 +30,7 @@ include(CTest)
 include(GNUInstallDirs)
 
 option(PLEIONE_DOC "Build pleione documentation." ON)
+option(PLEIONE_DOC_INTERNAL "Build pleione internal documentation." OFF)
 
 list(APPEND PLEIONE_CXX_FLAGS -Wall -Wextra -Wpedantic -Werror)
 list(APPEND PLEIONE_CXX_DEBUG_FLAGS -fsanitize=address -fsanitize=undefined)
