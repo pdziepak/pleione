@@ -38,9 +38,12 @@ option(PLEIONE_PERF "Build microbenchmarks." OFF)
 
 list(APPEND PLEIONE_CXX_FLAGS -Wall -Wextra -Wpedantic -Werror)
 list(APPEND PLEIONE_CXX_DEBUG_FLAGS -fsanitize=address -fsanitize=undefined)
+list(APPEND PLEIONE_CXX_RELEASE_FLAGS -O3)
 
 if(CMAKE_BUILD_TYPE STREQUAL Debug)
   list(APPEND PLEIONE_CXX_FLAGS ${PLEIONE_CXX_DEBUG_FLAGS})
+else()
+  list(APPEND PLEIONE_CXX_FLAGS ${PLEIONE_CXX_RELEASE_FLAGS})
 endif()
 
 add_library(pleione INTERFACE)
