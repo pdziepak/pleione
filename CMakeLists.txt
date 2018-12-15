@@ -26,11 +26,15 @@ project(pleione
   LANGUAGES CXX
 )
 
+set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${CMAKE_SOURCE_DIR}/cmake)
+
 include(CTest)
 include(GNUInstallDirs)
 
 option(PLEIONE_DOC "Build pleione documentation." ON)
 option(PLEIONE_DOC_INTERNAL "Build pleione internal documentation." OFF)
+
+option(PLEIONE_PERF "Build microbenchmarks." OFF)
 
 list(APPEND PLEIONE_CXX_FLAGS -Wall -Wextra -Wpedantic -Werror)
 list(APPEND PLEIONE_CXX_DEBUG_FLAGS -fsanitize=address -fsanitize=undefined)
@@ -50,6 +54,10 @@ file(GLOB_RECURSE PLEIONE_PUBLIC_HEADERS
 
 if(PLEIONE_DOC)
   add_subdirectory(doc)
+endif()
+
+if(BUILD_TESTING AND PLEIONE_PERF)
+  add_subdirectory(perf)
 endif()
 
 if(BUILD_TESTING)
