@@ -36,6 +36,19 @@ matrix:
         - MATRIX_EVAL="CC=gcc-8 && CXX=g++-8"
         - BUILD_TYPE=Debug
 
+    - os: linux
+      compiler: gcc
+      addons:
+        apt:
+          sources:
+            - ubuntu-toolchain-r-test
+          packages:
+            - g++-8
+            - lcov
+      env:
+        - MATRIX_EVAL="COVERAGE=1 && CC=gcc-8 && CXX=g++-8 && CXX_FLAGS=--coverage"
+        - BUILD_TYPE=Debug
+
 before_script:
   - eval "${MATRIX_EVAL}"
   - sudo apt-get install -qq libgtest-dev
@@ -44,7 +57,15 @@ before_script:
   - cd build
 
 script:
-  - cmake .. -DCMAKE_BUILD_TYPE=${BUILD_TYPE} -DPLEIONE_DOC=OFF -DCMAKE_EXE_LINKER_FLAGS=-fuse-ld=gold
+  - cmake .. -DCMAKE_BUILD_TYPE=${BUILD_TYPE} -DPLEIONE_DOC=OFF -DCMAKE_EXE_LINKER_FLAGS=-fuse-ld=gold -DCMAKE_CXX_FLAGS=${CXX_FLAGS}
   - make VERBOSE=1
   - make test
 
+after_script:
+  - if [[ "${COVERAGE}" == 1 ]]; then
+      cd ${TRAVIS_BUILD_DIR};
+      lcov --directory . --capture --output-file coverage.info;
+      lcov --remove coverage.info '/usr/*' --output-file coverage.info;
+      lcov --list coverage.info;
+      bash <(curl -s https://codecov.io/bash) -x gcov-8 || echo "Codecov did not collect coverage reports";
+    fi
