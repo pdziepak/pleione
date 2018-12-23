@@ -23,6 +23,9 @@
 #ifndef PLEIONE_DETAIL_CONFIG_HPP
 #define PLEIONE_DETAIL_CONFIG_HPP
 
+#include <cstdio>
+#include <cstdlib>
+
 #define PLEIONE_NAMESPACE_BEGIN                                                                                        \
   namespace pleione {                                                                                                  \
   inline namespace v0 __attribute__((abi_tag("pleione_v0"))) {
@@ -31,11 +34,45 @@
   }                                                                                                                    \
   }
 
+#define PLEIONE_HOT [[gnu::hot]]
+#define PLEIONE_COLD [[gnu::cold]]
+
+#define PLEIONE_NOINLINE [[gnu::noinline]]
+#define PLEIONE_ALWAYS_INLINE [[gnu::always_inline]]
+
 PLEIONE_NAMESPACE_BEGIN
 
 /// Internal namespace
-namespace detail {}
+namespace detail {
+
+[[noreturn]] PLEIONE_COLD PLEIONE_NOINLINE inline void assert_failure(char const* msg, char const* file,
+                                                                      int line) noexcept {
+  std::fprintf(stderr, "%s:%d: %s\n", file, line, msg);
+  std::abort();
+}
+
+} // namespace detail
 
 PLEIONE_NAMESPACE_END
+
+#if defined(__clang__)
+#define PLEIONE_ASSUME(...) __builtin_assume(__VA_ARGS__)
+#elif defined(__GNUC__)
+#define PLEIONE_ASSUME(...) static_cast<void>((__VA_ARGS__) ? void(0) : __builtin_unreachable())
+#else
+#define PLEIONE_ASSUME(...)
+#endif
+
+#if PLEIONE_DEBUG
+#define PLEIONE_ASSERT(...)                                                                                            \
+  static_cast<void>((__VA_ARGS__)                                                                                      \
+                        ? void(0)                                                                                      \
+                        : ::pleione::detail::assert_failure("assertion failed: " #__VA_ARGS__, __FILE__, __LINE__))
+#else
+#define PLEIONE_ASSERT(...) PLEIONE_ASSUME(__VA_ARGS__)
+#endif
+
+#define PLEIONE_LIKELY(...) __builtin_expect(bool(__VA_ARGS__), true)
+#define PLEIONE_UNLIKELY(...) __builtin_expect(bool(__VA_ARGS__), false)
 
 #endif

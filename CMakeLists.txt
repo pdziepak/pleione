@@ -37,7 +37,7 @@ option(PLEIONE_DOC_INTERNAL "Build pleione internal documentation." OFF)
 option(PLEIONE_PERF "Build microbenchmarks." OFF)
 
 list(APPEND PLEIONE_CXX_FLAGS -Wall -Wextra -Wpedantic -Werror)
-list(APPEND PLEIONE_CXX_DEBUG_FLAGS -fsanitize=address -fsanitize=undefined)
+list(APPEND PLEIONE_CXX_DEBUG_FLAGS -fsanitize=address -fsanitize=undefined -DPLEIONE_DEBUG=1)
 list(APPEND PLEIONE_CXX_RELEASE_FLAGS -O3)
 
 if(CMAKE_BUILD_TYPE STREQUAL Debug)
