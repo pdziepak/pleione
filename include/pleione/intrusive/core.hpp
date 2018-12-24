@@ -20,11 +20,16 @@
  * SOFTWARE.
  */
 
-#ifndef PLEIONE_ALL_HPP
-#define PLEIONE_ALL_HPP
+#ifndef PLEIONE_INTRUSIVE_CORE_HPP
+#define PLEIONE_INTRUSIVE_CORE_HPP
 
-#include "core.hpp"
+#include "../core.hpp"
 
-#include "intrusive/all.hpp"
+PLEIONE_NAMESPACE_BEGIN
+
+/// Intrusive containers
+namespace intrusive {} // namespace intrusive
+
+PLEIONE_NAMESPACE_END
 
 #endif

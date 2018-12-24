@@ -20,11 +20,10 @@
  * SOFTWARE.
  */
 
-#ifndef PLEIONE_ALL_HPP
-#define PLEIONE_ALL_HPP
+#ifndef PLEIONE_INTRUSIVE_ALL_HPP
+#define PLEIONE_INTRUSIVE_ALL_HPP
 
 #include "core.hpp"
-
-#include "intrusive/all.hpp"
+#include "list.hpp"
 
 #endif

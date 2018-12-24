@@ -19,30 +19,4 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-find_package(GTest REQUIRED)
-
-function(pleione_add_test TESTNAME SOURCE)
-  add_executable(${TESTNAME} ${SOURCE} ${ARGN})
-  target_link_libraries(${TESTNAME} pleione GTest::GTest GTest::Main ${PLEIONE_CXX_FLAGS})
-  set_target_properties(${TESTNAME} PROPERTIES
-    CXX_STANDARD 17
-    CXX_STANDARD_REQUIRED YES
-    CXX_EXTENSIONS NO
-  )
-  target_compile_options(${TESTNAME} PRIVATE ${PLEIONE_CXX_FLAGS})
-  add_test(${TESTNAME} ${TESTNAME})
-endfunction(pleione_add_test)
-
-foreach(HEADER_FILE ${PLEIONE_PUBLIC_HEADERS})
-  get_filename_component(SOURCE_FILE "${HEADER_FILE}" NAME_WE)
-  get_filename_component(DIRECTORY "${HEADER_FILE}" DIRECTORY)
-  set(SOURCE_FILE "${DIRECTORY}/${SOURCE_FILE}.cpp")
-
-  file(WRITE "${CMAKE_CURRENT_BINARY_DIR}/include_all_dir/${SOURCE_FILE}" "#include <${HEADER_FILE}>\n#include <${HEADER_FILE}>")
-  list(APPEND PLEIONE_TEST_INCLUDE_ALL_SOURCES "${CMAKE_CURRENT_BINARY_DIR}/include_all_dir/${SOURCE_FILE}")
-endforeach()
-
-pleione_add_test(include_all include_all.cpp ${PLEIONE_TEST_INCLUDE_ALL_SOURCES})
-
-add_subdirectory(detail)
-add_subdirectory(intrusive)
+pleione_add_test(intrusive_list list.cpp)
