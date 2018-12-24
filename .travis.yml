@@ -33,7 +33,7 @@ matrix:
           packages:
             - g++-8
       env:
-        - MATRIX_EVAL="CC=gcc-8 && CXX=g++-8"
+        - MATRIX_EVAL="CC=gcc-8 && CXX=g++-8 && LINK_FLAGS=-fuse-ld=gold"
         - BUILD_TYPE=Debug
 
     - os: linux
@@ -46,19 +46,30 @@ matrix:
             - g++-8
             - lcov
       env:
-        - MATRIX_EVAL="COVERAGE=1 && CC=gcc-8 && CXX=g++-8 && CXX_FLAGS=--coverage"
+        - MATRIX_EVAL="COVERAGE=1 && CC=gcc-8 && CXX=g++-8 && CXX_FLAGS=--coverage && LINK_FLAGS=-fuse-ld=gold"
+        - BUILD_TYPE=Debug
+
+    - os: osx
+      compiler: clang
+      osx_image: xcode10
+      env:
+        - BUILD_TYPE=Release
+
+    - os: osx
+      compiler: clang
+      osx_image: xcode10
+      env:
         - BUILD_TYPE=Debug
 
 install:
   - eval "${MATRIX_EVAL}"
-  - sudo apt-get install -qq libgtest-dev
-  - (cd /usr/src/gtest && sudo env "PATH=$PATH" cmake . && sudo env "PATH=$PATH" make && sudo cp *.a /usr/lib)
   - mkdir build
   - cd build
+  - (git clone https://github.com/google/googletest.git && cd googletest && git checkout release-1.8.1 && mkdir build && cd build && cmake .. -DCMAKE_BUILD_TYPE=Release && make && sudo make install)
   - (git clone https://github.com/google/benchmark.git && cd benchmark && git checkout v1.4.1 && mkdir build && cd build && cmake .. -DCMAKE_BUILD_TYPE=Release -DBENCHMARK_ENABLE_TESTING=OFF && make && sudo make install)
 
 script:
-  - cmake .. -DCMAKE_BUILD_TYPE=${BUILD_TYPE} -DPLEIONE_DOC=OFF -DPLEIONE_PERF=ON -DCMAKE_EXE_LINKER_FLAGS=-fuse-ld=gold -DCMAKE_CXX_FLAGS=${CXX_FLAGS}
+  - cmake .. -DCMAKE_BUILD_TYPE=${BUILD_TYPE} -DPLEIONE_DOC=OFF -DPLEIONE_PERF=ON -DCMAKE_EXE_LINKER_FLAGS=${LINK_FLAGS} -DCMAKE_CXX_FLAGS=${CXX_FLAGS}
   - make VERBOSE=1
   - make test
 
