@@ -56,10 +56,10 @@ matrix:
           sources:
             - ubuntu-toolchain-r-test
           packages:
-            - g++-8
+            - g++-7
             - lcov
       env:
-        - MATRIX_EVAL="COVERAGE=1 && CC=gcc-8 && CXX=g++-8 && CXX_FLAGS=--coverage && LINK_FLAGS=-fuse-ld=gold"
+        - MATRIX_EVAL="COVERAGE=1 && CC=gcc-7 && CXX=g++-7 && CXX_FLAGS=--coverage && LINK_FLAGS=-fuse-ld=gold"
         - BUILD_TYPE=Debug
 
     - os: osx
@@ -89,8 +89,8 @@ script:
 after_script:
   - if [[ "${COVERAGE}" == 1 ]]; then
       cd ${TRAVIS_BUILD_DIR};
-      lcov --directory . --capture --output-file coverage.info;
+      lcov --directory . --capture --output-file coverage.info --gcov-tool gcov-7;
       lcov --remove coverage.info '/usr/*' --output-file coverage.info;
       lcov --list coverage.info;
-      bash <(curl -s https://codecov.io/bash) -x gcov-8 || echo "Codecov did not collect coverage reports";
+      bash <(curl -s https://codecov.io/bash) -x gcov-7 || echo "Codecov did not collect coverage reports";
     fi
