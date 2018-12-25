@@ -19,4 +19,5 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
+pleione_add_test(intrusive_forward_list forward_list.cpp)
 pleione_add_test(intrusive_list list.cpp)

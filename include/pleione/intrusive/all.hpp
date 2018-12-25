@@ -24,6 +24,7 @@
 #define PLEIONE_INTRUSIVE_ALL_HPP
 
 #include "core.hpp"
+#include "forward_list.hpp"
 #include "list.hpp"
 
 #endif
