@@ -22,13 +22,13 @@
 find_package(GBenchmark REQUIRED)
 
 function(pleione_add_perf TESTNAME SOURCE)
-  add_executable(${TESTNAME} ${SOURCE} ${ARGN})
-  target_link_libraries(${TESTNAME} pleione GBenchmark::GBenchmark GBenchmark::Main ${PLEIONE_CXX_FLAGS})
-  set_target_properties(${TESTNAME} PROPERTIES
+  add_executable(perf_${TESTNAME} ${SOURCE} ${ARGN})
+  target_link_libraries(perf_${TESTNAME} pleione GBenchmark::GBenchmark GBenchmark::Main ${PLEIONE_CXX_FLAGS})
+  set_target_properties(perf_${TESTNAME} PROPERTIES
     CXX_STANDARD 17
     CXX_STANDARD_REQUIRED YES
     CXX_EXTENSIONS NO
   )
-  target_compile_options(${TESTNAME} PRIVATE ${PLEIONE_CXX_FLAGS})
-  add_test(NAME perf_${TESTNAME} COMMAND ${TESTNAME} CONFIGURATIONS perf)
+  target_compile_options(perf_${TESTNAME} PRIVATE ${PLEIONE_CXX_FLAGS})
+  add_test(NAME perf_${TESTNAME} COMMAND perf_${TESTNAME} CONFIGURATIONS perf)
 endfunction(pleione_add_perf)
