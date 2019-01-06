@@ -39,7 +39,7 @@ struct foo {
 using list_type = pleione::intrusive::list<foo, &foo::hook>;
 
 template<typename ForwardIt> static void check_equal_range(list_type& actual, ForwardIt first, ForwardIt last) {
-  EXPECT_EQ(actual.empty(), std::distance(last, first) == 0);
+  EXPECT_EQ(actual.empty(), std::distance(first, last) == 0);
   EXPECT_EQ(actual.size(), std::distance(first, last));
   EXPECT_TRUE(std::equal(actual.begin(), actual.end(), first, last));
   EXPECT_TRUE(std::equal(std::make_reverse_iterator(actual.end()), std::make_reverse_iterator(actual.begin()),
