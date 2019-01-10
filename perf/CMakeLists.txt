@@ -24,11 +24,6 @@ find_package(benchmark REQUIRED)
 function(pleione_add_perf TESTNAME SOURCE)
   add_executable(perf_${TESTNAME} ${SOURCE} ${ARGN})
   target_link_libraries(perf_${TESTNAME} pleione benchmark::benchmark benchmark::benchmark_main ${PLEIONE_CXX_FLAGS})
-  set_target_properties(perf_${TESTNAME} PROPERTIES
-    CXX_STANDARD 17
-    CXX_STANDARD_REQUIRED YES
-    CXX_EXTENSIONS NO
-  )
   target_compile_options(perf_${TESTNAME} PRIVATE ${PLEIONE_CXX_FLAGS})
   add_test(NAME perf_${TESTNAME} COMMAND perf_${TESTNAME} CONFIGURATIONS perf)
 endfunction(pleione_add_perf)

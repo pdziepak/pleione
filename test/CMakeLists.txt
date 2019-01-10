@@ -24,11 +24,6 @@ find_package(GTest REQUIRED)
 function(pleione_add_test TESTNAME SOURCE)
   add_executable(${TESTNAME} ${SOURCE} ${ARGN})
   target_link_libraries(${TESTNAME} pleione GTest::GTest GTest::Main ${PLEIONE_CXX_FLAGS})
-  set_target_properties(${TESTNAME} PROPERTIES
-    CXX_STANDARD 17
-    CXX_STANDARD_REQUIRED YES
-    CXX_EXTENSIONS NO
-  )
   target_compile_options(${TESTNAME} PRIVATE ${PLEIONE_CXX_FLAGS})
   add_test(${TESTNAME} ${TESTNAME})
 endfunction(pleione_add_test)

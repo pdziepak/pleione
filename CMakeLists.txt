@@ -47,6 +47,7 @@ endif()
 add_library(pleione INTERFACE)
 target_include_directories(pleione INTERFACE $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include/>)
 target_include_directories(pleione SYSTEM INTERFACE $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>)
+target_compile_features(pleione INTERFACE cxx_std_17)
 
 file(GLOB_RECURSE PLEIONE_PUBLIC_HEADERS
   RELATIVE ${CMAKE_CURRENT_SOURCE_DIR}/include
