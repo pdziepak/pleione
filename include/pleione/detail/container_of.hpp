@@ -24,6 +24,7 @@
 #define PLEIONE_DETAIL_CONTAINER_OF_HPP
 
 #include <cstddef>
+#include <type_traits>
 
 #include "config.hpp"
 
@@ -67,7 +68,7 @@ template<typename Structure, typename MemberType> ptrdiff_t offset_of(MemberType
 /// \returns reference to the container object
 template<typename Structure, typename MemberType>
 Structure& container_of(MemberType Structure::*member_pointer, MemberType& member) noexcept {
-  auto ptr = reinterpret_cast<char*>(&member);
+  auto ptr = reinterpret_cast<char*>(const_cast<std::remove_const_t<MemberType>*>(&member));
   ptr -= offset_of(member_pointer);
   return *reinterpret_cast<Structure*>(ptr);
 }
