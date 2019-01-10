@@ -19,11 +19,11 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-find_package(GBenchmark REQUIRED)
+find_package(benchmark REQUIRED)
 
 function(pleione_add_perf TESTNAME SOURCE)
   add_executable(perf_${TESTNAME} ${SOURCE} ${ARGN})
-  target_link_libraries(perf_${TESTNAME} pleione GBenchmark::GBenchmark GBenchmark::Main ${PLEIONE_CXX_FLAGS})
+  target_link_libraries(perf_${TESTNAME} pleione benchmark::benchmark benchmark::benchmark_main ${PLEIONE_CXX_FLAGS})
   set_target_properties(perf_${TESTNAME} PROPERTIES
     CXX_STANDARD 17
     CXX_STANDARD_REQUIRED YES
