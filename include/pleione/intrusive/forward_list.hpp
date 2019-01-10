@@ -61,10 +61,11 @@ public:
 
 public:
   template<bool Constant> class basic_iterator {
-    forward_list_hook* current_ = nullptr;
+    using hook_type = std::conditional_t<Constant, forward_list_hook const, forward_list_hook>;
+    hook_type* current_ = nullptr;
 
   private:
-    explicit basic_iterator(forward_list_hook* hook) noexcept : current_(hook) {}
+    explicit basic_iterator(hook_type* hook) noexcept : current_(hook) {}
 
     friend class forward_list;
 
@@ -79,8 +80,8 @@ public:
 
     operator basic_iterator<true>() const noexcept { return basic_iterator<true>(current_); }
 
-    reference operator*() const noexcept { return detail::container_of<T, forward_list_hook>(Hook, *current_); }
-    pointer operator->() const noexcept { return &detail::container_of<T, forward_list_hook>(Hook, *current_); }
+    reference operator*() const noexcept { return detail::container_of<value_type, hook_type>(Hook, *current_); }
+    pointer operator->() const noexcept { return &detail::container_of<value_type, hook_type>(Hook, *current_); }
 
     basic_iterator& operator++() noexcept {
       current_ = current_->next_;
@@ -135,7 +136,7 @@ public:
   T const& front() const noexcept { return detail::container_of<T, forward_list_hook>(Hook, *root_.next_); }
 
   iterator before_begin() noexcept { return iterator(&root_); }
-  const_iterator before_begin() const noexcept { return const_iterator(const_cast<forward_list_hook*>(&root_)); }
+  const_iterator before_begin() const noexcept { return const_iterator(&root_); }
   iterator begin() noexcept { return iterator(root_.next_); }
   const_iterator begin() const noexcept { return const_iterator(root_.next_); }
   iterator end() noexcept { return iterator(nullptr); }
@@ -145,7 +146,7 @@ public:
 
   void clear() noexcept { root_.next_ = nullptr; }
 
-  iterator insert_after(const_iterator position, T& object) noexcept {
+  iterator insert_after(iterator position, T& object) noexcept {
     PLEIONE_ASSERT(position.current_);
     auto& hook = object.*Hook;
     hook.next_ = position.current_->next_;
@@ -153,8 +154,7 @@ public:
     return iterator(&hook);
   }
 
-  template<typename ForwardIt>
-  iterator insert_after(const_iterator position, ForwardIt first, ForwardIt last) noexcept {
+  template<typename ForwardIt> iterator insert_after(iterator position, ForwardIt first, ForwardIt last) noexcept {
     PLEIONE_ASSERT(position.current_);
     auto prev = position.current_;
     auto after = position.current_->next_;
@@ -168,7 +168,7 @@ public:
     return iterator(prev);
   }
 
-  iterator erase_after(const_iterator position) noexcept {
+  iterator erase_after(iterator position) noexcept {
     PLEIONE_ASSERT(position.current_);
     PLEIONE_ASSERT(root_.next_);
     auto after = position.current_->next_->next_;
@@ -176,8 +176,8 @@ public:
     return iterator(after);
   }
 
-  iterator erase_after(const_iterator first, const_iterator last) noexcept {
-    if (PLEIONE_UNLIKELY(first == last || std::next(first) == last)) { return iterator(last.current_); }
+  iterator erase_after(iterator first, iterator last) noexcept {
+    if (PLEIONE_UNLIKELY(first == last || std::next(first) == last)) { return last; }
     PLEIONE_ASSERT(first.current_);
     PLEIONE_ASSERT(root_.next_);
     first.current_->next_ = last.current_;
@@ -195,7 +195,7 @@ public:
     root_.next_ = root_.next_->next_;
   }
 
-  void splice_after(const_iterator position, forward_list& other) noexcept {
+  void splice_after(iterator position, forward_list& other) noexcept {
     PLEIONE_ASSERT(position.current_);
     if (position.current_->next_) {
       auto other_it = other.before_begin();
@@ -205,7 +205,7 @@ public:
     position.current_->next_ = other.root_.next_;
     other.root_.next_ = nullptr;
   }
-  void splice_after(const_iterator position, forward_list&& other) noexcept {
+  void splice_after(iterator position, forward_list&& other) noexcept {
     PLEIONE_ASSERT(position.current_);
     if (position.current_->next_) {
       auto other_it = other.before_begin();
@@ -215,16 +215,16 @@ public:
     position.current_->next_ = other.root_.next_;
   }
 
-  void splice_after(const_iterator position, forward_list& other, const_iterator element) noexcept {
-    auto& object = const_cast<T&>(*std::next(element));
+  void splice_after(iterator position, forward_list& other, iterator element) noexcept {
+    auto& object = *std::next(element);
     other.erase_after(element);
     insert_after(position, object);
   }
-  void splice_after(const_iterator position, forward_list&&, const_iterator element) noexcept {
-    insert_after(position, const_cast<T&>(*std::next(element)));
+  void splice_after(iterator position, forward_list&&, iterator element) noexcept {
+    insert_after(position, *std::next(element));
   }
 
-  void splice_after(const_iterator position, forward_list&, const_iterator first, const_iterator last) noexcept {
+  void splice_after(iterator position, forward_list&, iterator first, iterator last) noexcept {
     if (PLEIONE_UNLIKELY(first == last || std::next(first) == last)) { return; }
     auto first_element = first.current_->next_;
     auto last_element = first_element;
@@ -233,7 +233,7 @@ public:
     position.current_->next_ = first_element;
     first.current_->next_ = last.current_;
   }
-  void splice_after(const_iterator position, forward_list&&, const_iterator first, const_iterator last) noexcept {
+  void splice_after(iterator position, forward_list&&, iterator first, iterator last) noexcept {
     if (PLEIONE_UNLIKELY(first == last || std::next(first) == last)) { return; }
     auto first_element = first.current_->next_;
     auto last_element = first_element;
