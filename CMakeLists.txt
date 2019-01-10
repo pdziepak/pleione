@@ -46,7 +46,7 @@ endif()
 
 add_library(pleione INTERFACE)
 target_include_directories(pleione INTERFACE $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include/>)
-target_include_directories(pleione SYSTEM INTERFACE $<INSTALL_INTERFACE:$<INSTALL_PREFIX>/include>)
+target_include_directories(pleione SYSTEM INTERFACE $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>)
 
 file(GLOB_RECURSE PLEIONE_PUBLIC_HEADERS
   RELATIVE ${CMAKE_CURRENT_SOURCE_DIR}/include
@@ -65,4 +65,14 @@ if(BUILD_TESTING)
   add_subdirectory(test)
 endif()
 
+include(CMakePackageConfigHelpers)
+write_basic_package_version_file(
+  ${CMAKE_CURRENT_BINARY_DIR}/pleione-config-version.cmake
+  VERSION ${PROJECT_VERSION}
+  COMPATIBILITY ExactVersion
+)
+
+install(TARGETS pleione EXPORT pleione-targets DESTINATION ${CMAKE_INSTALL_LIBDIR})
+install(EXPORT pleione-targets FILE pleione-config.cmake NAMESPACE pleione:: DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/pleione)
+install(FILES ${CMAKE_CURRENT_BINARY_DIR}/pleione-config-version.cmake DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/pleione)
 install(DIRECTORY include/ DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
