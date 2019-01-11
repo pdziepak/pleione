@@ -27,7 +27,7 @@
 
 #include <gtest/gtest.h>
 
-static_assert(std::is_trivial_v<pleione::intrusive::forward_list_hook>);
+static_assert(std::is_trivially_default_constructible_v<pleione::intrusive::forward_list_hook>);
 
 struct foo {
   int value;
