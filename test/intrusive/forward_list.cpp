@@ -447,7 +447,7 @@ TEST(intrusive_forward_list, forward_iterator) {
 
   auto test_iterators = [&](auto& l) {
     {
-      auto idx = 0;
+      auto idx = 0u;
       auto it = l.before_begin();
       EXPECT_EQ(it, l.before_begin());
       EXPECT_EQ(++it, l.begin());
@@ -461,7 +461,7 @@ TEST(intrusive_forward_list, forward_iterator) {
     }
 
     {
-      auto idx = 0;
+      auto idx = 0u;
       auto it = l.before_begin();
       EXPECT_EQ(it++, l.before_begin());
       EXPECT_EQ(it, l.begin());
