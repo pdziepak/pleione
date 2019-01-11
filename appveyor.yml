@@ -1,0 +1,28 @@
+
+image:
+  - Visual Studio 2017
+
+platform:
+  - Win32
+  - x64
+
+configuration:
+  - Debug
+  - Release
+
+install:
+  - vcpkg integrate install
+  - vcpkg install gtest:x86-windows
+  - vcpkg install benchmark:x86-windows
+  - vcpkg install gtest:x64-windows
+  - vcpkg install benchmark:x64-windows
+
+before_build:
+  - mkdir build
+  - cd build
+  - cmake .. -DCMAKE_BUILD_TYPE=%CONFIGURATION% -DPLEIONE_DOC=OFF -DPLEIONE_PERF=ON -DCMAKE_TOOLCHAIN_FILE=C:/Tools/vcpkg/scripts/buildsystems/vcpkg.cmake -DCMAKE_GENERATOR_PLATFORM=%PLATFORM% -DCMAKE_CXX_FLAGS="/wd4275 /wd4251"
+
+test_script:
+  - ctest
+
+cache: C:\Tools\vcpkg\installed\
