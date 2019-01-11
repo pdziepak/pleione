@@ -23,7 +23,7 @@ find_package(GTest REQUIRED)
 
 function(pleione_add_test TESTNAME SOURCE)
   add_executable(${TESTNAME} ${SOURCE} ${ARGN})
-  target_link_libraries(${TESTNAME} pleione GTest::GTest GTest::Main ${PLEIONE_CXX_FLAGS})
+  target_link_libraries(${TESTNAME} pleione GTest::GTest GTest::Main ${PLEIONE_LINK_FLAGS})
   target_compile_options(${TESTNAME} PRIVATE ${PLEIONE_CXX_FLAGS})
   add_test(${TESTNAME} ${TESTNAME})
 endfunction(pleione_add_test)
