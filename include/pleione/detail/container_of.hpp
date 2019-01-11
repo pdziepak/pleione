@@ -44,10 +44,17 @@ namespace detail {
 /// \param pointer pointer to the member
 /// \returns offset from the beginning of the object to the member
 template<typename Structure, typename MemberType> ptrdiff_t offset_of(MemberType Structure::*pointer) noexcept {
-  static_assert(sizeof(pointer) == sizeof(ptrdiff_t));
+#if (defined(__linux__) || defined(__APPLE__)) && defined(__x86_64__)
+  using member_pointer_value_type = ptrdiff_t;
+#elif defined(_WIN32) && (defined(_M_X64) || defined(_M_IX86))
+  using member_pointer_value_type = int32_t;
+#else
+#error Unknown ABI
+#endif
+  static_assert(sizeof(pointer) == sizeof(member_pointer_value_type));
   union {
     MemberType Structure::*ptr;
-    ptrdiff_t off;
+    member_pointer_value_type off;
   };
   ptr = pointer;
   return off;
