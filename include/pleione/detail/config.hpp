@@ -26,19 +26,45 @@
 #include <cstdio>
 #include <cstdlib>
 
+#if defined(__clang__) || defined(__GNUC__)
 #define PLEIONE_NAMESPACE_BEGIN                                                                                        \
   namespace pleione {                                                                                                  \
   inline namespace v0 __attribute__((abi_tag("pleione_v0"))) {
+#else
+#define PLEIONE_NAMESPACE_BEGIN                                                                                        \
+  namespace pleione {                                                                                                  \
+  inline namespace v0 {
+#endif
 
 #define PLEIONE_NAMESPACE_END                                                                                          \
   }                                                                                                                    \
   }
+
+#if defined(__clang__) || defined(__GNUC__)
 
 #define PLEIONE_HOT [[gnu::hot]]
 #define PLEIONE_COLD [[gnu::cold]]
 
 #define PLEIONE_NOINLINE [[gnu::noinline]]
 #define PLEIONE_ALWAYS_INLINE [[gnu::always_inline]]
+
+#elif defined(_MSC_VER)
+
+#define PLEIONE_HOT
+#define PLEIONE_COLD
+
+#define PLEIONE_NOINLINE __declspec(noinline)
+#define PLEIONE_ALWAYS_INLINE __forceinline
+
+#else
+
+#define PLEIONE_HOT
+#define PLEIONE_COLD
+
+#define PLEIONE_NOINLINE
+#define PLEIONE_ALWAYS_INLINE
+
+#endif
 
 PLEIONE_NAMESPACE_BEGIN
 
@@ -59,6 +85,8 @@ PLEIONE_NAMESPACE_END
 #define PLEIONE_ASSUME(...) __builtin_assume(__VA_ARGS__)
 #elif defined(__GNUC__)
 #define PLEIONE_ASSUME(...) static_cast<void>((__VA_ARGS__) ? void(0) : __builtin_unreachable())
+#elif defined(_MSC_VER)
+#define PLEIONE_ASSUME(...) __assume(__VA_ARGS__)
 #else
 #define PLEIONE_ASSUME(...)
 #endif
@@ -72,7 +100,16 @@ PLEIONE_NAMESPACE_END
 #define PLEIONE_ASSERT(...) PLEIONE_ASSUME(__VA_ARGS__)
 #endif
 
+#if defined(__clang__) || defined(__GNUC__)
+
 #define PLEIONE_LIKELY(...) __builtin_expect(bool(__VA_ARGS__), true)
 #define PLEIONE_UNLIKELY(...) __builtin_expect(bool(__VA_ARGS__), false)
+
+#else
+
+#define PLEIONE_LIKELY(...) (__VA_ARGS__)
+#define PLEIONE_UNLIKELY(...) (__VA_ARGS__)
+
+#endif
 
 #endif
