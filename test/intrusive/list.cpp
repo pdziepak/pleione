@@ -508,7 +508,7 @@ TEST(intrusive_list, forward_iterator) {
 
   auto test_iterators = [&](auto& l) {
     {
-      auto idx = 0;
+      auto idx = 0u;
       auto it = l.begin();
       while (it != l.end()) {
         EXPECT_LT(idx, fs.size());
@@ -520,7 +520,7 @@ TEST(intrusive_list, forward_iterator) {
     }
 
     {
-      auto idx = 0;
+      auto idx = 0u;
       auto it = l.begin();
       while (it != l.end()) {
         EXPECT_LT(idx, fs.size());
@@ -535,7 +535,7 @@ TEST(intrusive_list, forward_iterator) {
       auto it = l.end();
       while (it != l.begin()) {
         --idx;
-        EXPECT_GE(idx, 0);
+        EXPECT_GE(idx, 0u);
         EXPECT_EQ(*--it, fs[idx]);
         EXPECT_EQ(&it->value, &fs[idx].value);
       }
@@ -548,7 +548,7 @@ TEST(intrusive_list, forward_iterator) {
       while (it != l.begin()) {
         --idx;
         it--;
-        EXPECT_GE(idx, 0);
+        EXPECT_GE(idx, 0u);
         EXPECT_EQ(*it, fs[idx]);
         EXPECT_EQ(&it->value, &fs[idx].value);
       }
@@ -585,7 +585,7 @@ TEST(intrusive_list, reverse_iterator) {
 
   auto test_iterators = [&](auto& l) {
     {
-      auto idx = 0;
+      auto idx = 0u;
       auto it = l.rbegin();
       while (it != l.rend()) {
         EXPECT_LT(idx, fs.size());
@@ -597,7 +597,7 @@ TEST(intrusive_list, reverse_iterator) {
     }
 
     {
-      auto idx = 0;
+      auto idx = 0u;
       auto it = l.rbegin();
       while (it != l.rend()) {
         EXPECT_LT(idx, fs.size());
@@ -612,7 +612,7 @@ TEST(intrusive_list, reverse_iterator) {
       auto it = l.rend();
       while (it != l.rbegin()) {
         --idx;
-        EXPECT_GE(idx, 0);
+        EXPECT_GE(idx, 0u);
         EXPECT_EQ(*--it, fs[fs.size() - idx - 1]);
         EXPECT_EQ(&it->value, &fs[fs.size() - idx - 1].value);
       }
@@ -625,7 +625,7 @@ TEST(intrusive_list, reverse_iterator) {
       while (it != l.rbegin()) {
         --idx;
         it--;
-        EXPECT_GE(idx, 0);
+        EXPECT_GE(idx, 0u);
         EXPECT_EQ(*it, fs[fs.size() - idx - 1]);
         EXPECT_EQ(&it->value, &fs[fs.size() - idx - 1].value);
       }
