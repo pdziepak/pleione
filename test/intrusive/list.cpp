@@ -27,6 +27,8 @@
 
 #include <gtest/gtest.h>
 
+#include "../state_walk.hpp"
+
 static_assert(std::is_trivially_default_constructible_v<pleione::intrusive::list_hook>);
 
 struct foo {
@@ -682,4 +684,158 @@ TEST(intrusive_list, swap) {
   swap(la, lb);
   check_equal_range(la, fa);
   check_equal_range(lb, fb);
+}
+
+struct object {
+  pleione::intrusive::list_hook hook;
+  size_t value;
+
+  friend bool operator==(object const& a, object const& b) noexcept { return a.value == b.value; }
+};
+
+size_t value_counter = 0;
+
+struct state {
+  std::list<object> std_;
+  pleione::intrusive::list<object, &object::hook> pln_;
+
+public:
+  state() = default;
+  state(state&&) = default;
+  state(state const& other) {
+    for (auto& obj : other.std_) {
+      auto& nobj = std_.emplace_back();
+      nobj.value = obj.value;
+      pln_.push_back(nobj);
+    }
+  }
+
+  bool empty() const { return std_.empty(); }
+  size_t size() const { return std_.size(); }
+
+  void push_front() {
+    auto& obj = std_.emplace_front();
+    obj.value = value_counter++;
+    pln_.push_front(obj);
+  }
+
+  void push_back() {
+    auto& obj = std_.emplace_back();
+    obj.value = value_counter++;
+    pln_.push_back(obj);
+  }
+
+  void pop_front() {
+    pln_.pop_front();
+    std_.pop_front();
+  }
+
+  void pop_back() {
+    pln_.pop_back();
+    std_.pop_back();
+  }
+
+  void insert(size_t idx) {
+    auto it = std_.emplace(std::next(std_.begin(), idx));
+    it->value = value_counter++;
+    pln_.insert(std::next(pln_.begin(), idx), *it);
+  }
+
+  void insert(size_t idx, size_t n) {
+    auto it = std::next(std_.begin(), idx);
+    for (auto i = 0u; i < n; i++) {
+      auto it2 = std_.emplace(it);
+      it2->value = value_counter++;
+    }
+    pln_.insert(std::next(pln_.begin(), idx), std::next(std_.begin(), idx), std::next(std_.begin(), idx + n));
+  }
+
+  void erase(size_t idx) {
+    pln_.erase(std::next(pln_.begin(), idx));
+    std_.erase(std::next(std_.begin(), idx));
+  }
+
+  void erase(size_t first, size_t last) {
+    pln_.erase(std::next(pln_.begin(), first), std::next(pln_.begin(), last));
+    std_.erase(std::next(std_.begin(), first), std::next(std_.begin(), last));
+  }
+
+  void validate() const {
+    EXPECT_EQ(std_.empty(), pln_.empty());
+    EXPECT_EQ(std_.size(), pln_.size());
+    if (!std_.empty()) {
+      EXPECT_EQ(&std_.front(), &pln_.front());
+      EXPECT_EQ(&std_.back(), &pln_.back());
+    } else {
+      EXPECT_EQ(pln_.begin(), pln_.end());
+      EXPECT_EQ(pln_.rbegin(), pln_.rend());
+    }
+    EXPECT_EQ(pln_.size(), std::distance(pln_.begin(), pln_.end()));
+    EXPECT_EQ(pln_.size(), std::distance(pln_.rbegin(), pln_.rend()));
+    EXPECT_TRUE(std::equal(std_.begin(), std_.end(), pln_.begin(), pln_.end()));
+    EXPECT_TRUE(std::equal(std_.rbegin(), std_.rend(), pln_.rbegin(), pln_.rend()));
+  }
+
+  bool check_bounds() const { return std_.size() < 8; }
+
+  friend bool operator==(state const& a, state const& b) noexcept { return a.std_.size() == b.std_.size(); }
+};
+
+namespace std {
+
+template<> struct hash<::state> {
+  size_t operator()(state const& st) const noexcept { return st.size(); }
+};
+
+} // namespace std
+
+TEST(intrusive_list, state_walk) {
+  state_walk<state>(
+      {
+          [](state const& in) {
+            std::vector<state> out;
+            out.emplace_back(in).push_front();
+            return out;
+          },
+          [](state const& in) {
+            std::vector<state> out;
+            out.emplace_back(in).push_back();
+            return out;
+          },
+          [](state const& in) {
+            std::vector<state> out;
+            if (!in.empty()) { out.emplace_back(in).pop_front(); }
+            return out;
+          },
+          [](state const& in) {
+            std::vector<state> out;
+            if (!in.empty()) { out.emplace_back(in).pop_back(); }
+            return out;
+          },
+          [](state const& in) {
+            std::vector<state> out;
+            for (auto i = 0u; i <= in.size(); i++) { out.emplace_back(in).insert(i); }
+            return out;
+          },
+          [](state const& in) {
+            std::vector<state> out;
+            for (auto i = 0u; i < in.size(); i++) {
+              for (auto j = 0u; j < 16; j++) { out.emplace_back(in).insert(i, j); }
+            }
+            return out;
+          },
+          [](state const& in) {
+            std::vector<state> out;
+            for (auto i = 0u; i < in.size(); i++) { out.emplace_back(in).erase(i); }
+            return out;
+          },
+          [](state const& in) {
+            std::vector<state> out;
+            for (auto i = 0u; i < in.size(); i++) {
+              for (auto j = 0u; j <= in.size() - i; j++) { out.emplace_back(in).erase(i, i + j); }
+            }
+            return out;
+          },
+      },
+      std::mem_fn(&state::validate), std::mem_fn(&state::check_bounds));
 }
