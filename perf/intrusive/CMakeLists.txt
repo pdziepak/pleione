@@ -1,5 +1,5 @@
 #
-# Copyright © 2018 Paweł Dziepak
+# Copyright © 2019 Paweł Dziepak
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -19,13 +19,4 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-find_package(benchmark REQUIRED)
-
-function(pleione_add_perf TESTNAME SOURCE)
-  add_executable(perf_${TESTNAME} ${SOURCE} ${ARGN})
-  target_link_libraries(perf_${TESTNAME} pleione benchmark::benchmark benchmark::benchmark_main ${PLEIONE_LINK_FLAGS})
-  target_compile_options(perf_${TESTNAME} PRIVATE ${PLEIONE_CXX_FLAGS})
-  add_test(NAME perf_${TESTNAME} COMMAND perf_${TESTNAME} CONFIGURATIONS perf)
-endfunction(pleione_add_perf)
-
-add_subdirectory(intrusive)
+pleione_add_perf(intrusive_list list.cpp)
