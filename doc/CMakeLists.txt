@@ -24,8 +24,8 @@ find_package(Doxygen REQUIRED dot)
 set(PLEIONE_DOC_SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/..")
 
 if(NOT PLEIONE_DOC_INTERNAL)
-  set(DOXYGEN_EXCLUDE_SYMBOLS "test;detail")
-  set(DOXYGEN_EXCLUDE_PATTERNS "test;detail")
+  set(DOXYGEN_EXCLUDE_SYMBOLS "test;detail;perf")
+  set(DOXYGEN_EXCLUDE_PATTERNS "test;detail;perf")
 endif()
 
 set(DOXYGEN_STRIP_FROM_PATH "include")
