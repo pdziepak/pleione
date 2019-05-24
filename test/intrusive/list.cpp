@@ -790,52 +790,51 @@ template<> struct hash<::state> {
 } // namespace std
 
 TEST(intrusive_list, state_walk) {
-  state_walk<state>(
-      {
-          [](state const& in) {
-            std::vector<state> out;
-            out.emplace_back(in).push_front();
-            return out;
-          },
-          [](state const& in) {
-            std::vector<state> out;
-            out.emplace_back(in).push_back();
-            return out;
-          },
-          [](state const& in) {
-            std::vector<state> out;
-            if (!in.empty()) { out.emplace_back(in).pop_front(); }
-            return out;
-          },
-          [](state const& in) {
-            std::vector<state> out;
-            if (!in.empty()) { out.emplace_back(in).pop_back(); }
-            return out;
-          },
-          [](state const& in) {
-            std::vector<state> out;
-            for (auto i = 0u; i <= in.size(); i++) { out.emplace_back(in).insert(i); }
-            return out;
-          },
-          [](state const& in) {
-            std::vector<state> out;
-            for (auto i = 0u; i < in.size(); i++) {
-              for (auto j = 0u; j < 16; j++) { out.emplace_back(in).insert(i, j); }
-            }
-            return out;
-          },
-          [](state const& in) {
-            std::vector<state> out;
-            for (auto i = 0u; i < in.size(); i++) { out.emplace_back(in).erase(i); }
-            return out;
-          },
-          [](state const& in) {
-            std::vector<state> out;
-            for (auto i = 0u; i < in.size(); i++) {
-              for (auto j = 0u; j <= in.size() - i; j++) { out.emplace_back(in).erase(i, i + j); }
-            }
-            return out;
-          },
-      },
-      std::mem_fn(&state::validate), std::mem_fn(&state::check_bounds));
+  state_walk<state>({
+                        [](state const& in) {
+                          std::vector<state> out;
+                          out.emplace_back(in).push_front();
+                          return out;
+                        },
+                        [](state const& in) {
+                          std::vector<state> out;
+                          out.emplace_back(in).push_back();
+                          return out;
+                        },
+                        [](state const& in) {
+                          std::vector<state> out;
+                          if (!in.empty()) { out.emplace_back(in).pop_front(); }
+                          return out;
+                        },
+                        [](state const& in) {
+                          std::vector<state> out;
+                          if (!in.empty()) { out.emplace_back(in).pop_back(); }
+                          return out;
+                        },
+                        [](state const& in) {
+                          std::vector<state> out;
+                          for (auto i = 0u; i <= in.size(); i++) { out.emplace_back(in).insert(i); }
+                          return out;
+                        },
+                        [](state const& in) {
+                          std::vector<state> out;
+                          for (auto i = 0u; i < in.size(); i++) {
+                            for (auto j = 0u; j < 16; j++) { out.emplace_back(in).insert(i, j); }
+                          }
+                          return out;
+                        },
+                        [](state const& in) {
+                          std::vector<state> out;
+                          for (auto i = 0u; i < in.size(); i++) { out.emplace_back(in).erase(i); }
+                          return out;
+                        },
+                        [](state const& in) {
+                          std::vector<state> out;
+                          for (auto i = 0u; i < in.size(); i++) {
+                            for (auto j = 0u; j <= in.size() - i; j++) { out.emplace_back(in).erase(i, i + j); }
+                          }
+                          return out;
+                        },
+                    },
+                    std::mem_fn(&state::validate), std::mem_fn(&state::check_bounds));
 }
