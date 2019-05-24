@@ -89,4 +89,23 @@ template<template<typename> typename T> void std_any_of(benchmark::State& s) {
 
 PLEIONE_DATA_SET_PERF_TEST(std_any_of);
 
+template<template<typename> typename T> void transform_reduce(benchmark::State& s) {
+  auto [objects, pointers] = T<object>{}(size_t(s.range(0)));
+  (void)objects;
+  auto list = pleione::intrusive::list<object, &object::hook_>();
+  for (auto p : pointers) { list.push_back(*p); }
+
+  uint64_t iterations = 0;
+  for (auto _ : s) {
+    benchmark::ClobberMemory();
+    auto ret =
+        transform_reduce(list.begin(), list.end(), 0, std::plus<>{}, [](object const& obj) { return obj.value_; });
+    benchmark::DoNotOptimize(ret);
+    ++iterations;
+  }
+  s.counters["ops"] = benchmark::Counter(double(iterations) * pointers.size(), benchmark::Counter::kIsRate);
+}
+
+PLEIONE_DATA_SET_PERF_TEST(transform_reduce);
+
 } // namespace perf
