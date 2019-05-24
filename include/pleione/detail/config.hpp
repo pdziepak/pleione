@@ -112,4 +112,10 @@ PLEIONE_NAMESPACE_END
 
 #endif
 
+#if defined(__clang__) || defined(__GNUC__)
+#define PLEIONE_PREFETCH(...) __builtin_prefetch((__VA_ARGS__))
+#else
+#define PLEIONE_PREFETCH(...)
+#endif
+
 #endif

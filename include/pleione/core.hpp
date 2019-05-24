@@ -28,6 +28,8 @@
 /// Main namespace
 PLEIONE_NAMESPACE_BEGIN
 
+template<bool Enable> struct prefetch {};
+
 PLEIONE_NAMESPACE_END
 
 #endif

@@ -34,22 +34,25 @@ struct object {
   int value_ = 0;
 };
 
-template<template<typename> typename T> void std_for_each(benchmark::State& s) {
+template<template<typename> typename T> void for_each(benchmark::State& s) {
   auto [objects, pointers] = T<object>{}(size_t(s.range(0)));
   (void)objects;
   auto list = pleione::intrusive::list<object, &object::hook_>();
   for (auto p : pointers) { list.push_back(*p); }
 
+  static constexpr bool enable_prefetch = std::is_same_v<T<object>, perf::data_set::random<object>>;
+
   uint64_t iterations = 0;
   for (auto _ : s) {
     benchmark::ClobberMemory();
-    std::for_each(list.begin(), list.end(), [](object& obj) { benchmark::DoNotOptimize(obj.value_); });
+    for_each(pleione::prefetch<enable_prefetch>{}, list.begin(), list.end(),
+             [](object& obj) { benchmark::DoNotOptimize(obj.value_); });
     ++iterations;
   }
   s.counters["ops"] = benchmark::Counter(double(iterations) * pointers.size(), benchmark::Counter::kIsRate);
 }
 
-PLEIONE_DATA_SET_PERF_TEST(std_for_each);
+PLEIONE_DATA_SET_PERF_TEST(for_each);
 
 template<template<typename> typename T> void std_for_each_rev(benchmark::State& s) {
   auto [objects, pointers] = T<object>{}(size_t(s.range(0)));
