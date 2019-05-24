@@ -358,6 +358,33 @@ public:
   friend void for_each(basic_iterator<Constant> first, basic_iterator<Constant> last, UnaryFunction&& fn) {
     for_each(prefetch<true>{}, first, last, std::forward<UnaryFunction>(fn));
   }
+
+  template<bool Prefetch, bool Constant, typename U, typename BinaryOp, typename UnaryOp>
+  friend U transform_reduce(prefetch<Prefetch>, basic_iterator<Constant> first, basic_iterator<Constant> last, U init,
+                            BinaryOp&& binary_op, UnaryOp&& unary_op) {
+    if (first == last) { return init; }
+
+    auto front = std::move(init);
+    auto back = unary_op(*--last);
+
+    while (first != last) {
+      if constexpr (Prefetch) { first.prefetch_next(); }
+      front = binary_op(std::move(front), unary_op(*first++));
+
+      if (first == last) { break; }
+
+      --last;
+      if constexpr (Prefetch) { last.prefetch_previous(); }
+      back = binary_op(std::move(back), unary_op(*last));
+    }
+    return binary_op(front, back);
+  }
+  template<bool Constant, typename U, typename BinaryOp, typename UnaryOp>
+  friend U transform_reduce(basic_iterator<Constant> first, basic_iterator<Constant> last, U init, BinaryOp&& binary_op,
+                            UnaryOp&& unary_op) {
+    return transform_reduce(prefetch<true>{}, first, last, std::move(init), std::forward<BinaryOp>(binary_op),
+                            std::forward<UnaryOp>(unary_op));
+  }
 };
 
 } // namespace intrusive

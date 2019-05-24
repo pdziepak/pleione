@@ -872,3 +872,49 @@ TEST(intrusive_list, for_each) {
     EXPECT_TRUE(std::all_of(visited.begin(), visited.end(), [](int x) { return x == 1; }));
   }
 }
+
+TEST(intrusive_list, transform_reduce) {
+  auto fs = std::vector<foo>(16);
+  for (auto idx = 0u; idx < fs.size(); idx++) { fs[idx].value = idx; }
+  auto l = list_type(fs.begin(), fs.end());
+
+  {
+    auto visited = std::array<int, 16>{};
+    auto value = transform_reduce(l.begin(), l.end(), 4, std::plus<>{}, [&](auto const& object) {
+      EXPECT_LT(unsigned(object.value), visited.size());
+      visited[object.value]++;
+      return object.value;
+    });
+    EXPECT_TRUE(std::all_of(visited.begin(), visited.end(), [](int x) { return x == 1; }));
+    EXPECT_EQ(value, 124);
+  }
+
+  {
+    auto visited = std::array<int, 16>{};
+    auto value =
+        transform_reduce(pleione::prefetch<true>{}, l.begin(), l.end(), 4, std::plus<>{}, [&](auto const& object) {
+          EXPECT_LT(unsigned(object.value), visited.size());
+          visited[object.value]++;
+          return object.value;
+        });
+    EXPECT_TRUE(std::all_of(visited.begin(), visited.end(), [](int x) { return x == 1; }));
+    EXPECT_EQ(value, 124);
+  }
+
+  {
+    auto visited = std::array<int, 16>{};
+    auto value =
+        transform_reduce(pleione::prefetch<false>{}, l.begin(), l.end(), 4, std::plus<>{}, [&](auto const& object) {
+          EXPECT_LT(unsigned(object.value), visited.size());
+          visited[object.value]++;
+          return object.value;
+        });
+    EXPECT_TRUE(std::all_of(visited.begin(), visited.end(), [](int x) { return x == 1; }));
+    EXPECT_EQ(value, 124);
+  }
+
+  {
+    auto value = transform_reduce(l.begin(), l.end(), 1, std::multiplies<>{}, [&](auto const&) { return 2; });
+    EXPECT_EQ(value, 65536);
+  }
+}
