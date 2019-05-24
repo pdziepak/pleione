@@ -1,5 +1,5 @@
 /*
- * Copyright © 2018 Paweł Dziepak
+ * Copyright © 2018-2019 Paweł Dziepak
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -22,6 +22,7 @@
 
 #include "pleione/intrusive/forward_list.hpp"
 
+#include <array>
 #include <list>
 #include <type_traits>
 
@@ -653,4 +654,37 @@ TEST(intrusive_forward_list, state_walk) {
           },
       },
       std::mem_fn(&state::validate), std::mem_fn(&state::check_bounds));
+}
+
+TEST(intrusive_forward_list, for_each) {
+  auto fs = std::vector<foo>(16);
+  for (auto idx = 0u; idx < fs.size(); idx++) { fs[idx].value = idx; }
+  auto l = list_type(fs.begin(), fs.end());
+
+  {
+    auto visited = std::array<int, 16>{};
+    for_each(l.begin(), l.end(), [&](auto const& object) {
+      EXPECT_LT(unsigned(object.value), visited.size());
+      visited[object.value]++;
+    });
+    EXPECT_TRUE(std::all_of(visited.begin(), visited.end(), [](int x) { return x == 1; }));
+  }
+
+  {
+    auto visited = std::array<int, 16>{};
+    for_each(pleione::prefetch<true>{}, l.begin(), l.end(), [&](auto const& object) {
+      EXPECT_LT(unsigned(object.value), visited.size());
+      visited[object.value]++;
+    });
+    EXPECT_TRUE(std::all_of(visited.begin(), visited.end(), [](int x) { return x == 1; }));
+  }
+
+  {
+    auto visited = std::array<int, 16>{};
+    for_each(pleione::prefetch<false>{}, l.begin(), l.end(), [&](auto const& object) {
+      EXPECT_LT(unsigned(object.value), visited.size());
+      visited[object.value]++;
+    });
+    EXPECT_TRUE(std::all_of(visited.begin(), visited.end(), [](int x) { return x == 1; }));
+  }
 }

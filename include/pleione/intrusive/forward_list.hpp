@@ -1,5 +1,5 @@
 /*
- * Copyright © 2018 Paweł Dziepak
+ * Copyright © 2018-2019 Paweł Dziepak
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -95,6 +95,8 @@ public:
 
     bool operator==(basic_iterator const& other) const noexcept { return current_ == other.current_; }
     bool operator!=(basic_iterator const& other) const noexcept { return !(*this == other); }
+
+    void prefetch_next() const noexcept { PLEIONE_PREFETCH(current_->next_); }
   };
 
 public:
@@ -240,6 +242,20 @@ public:
     while (last_element->next_ != last.current_) { last_element = last_element->next_; }
     last_element->next_ = position.current_->next_;
     position.current_->next_ = first_element;
+  }
+
+public:
+  template<bool Prefetch, bool Constant, typename UnaryFunction>
+  friend void for_each(prefetch<Prefetch>, basic_iterator<Constant> first, basic_iterator<Constant> last,
+                       UnaryFunction&& fn) {
+    while (first != last) {
+      if constexpr (Prefetch) { first.prefetch_next(); }
+      fn(*first++);
+    }
+  }
+  template<bool Constant, typename UnaryFunction>
+  friend void for_each(basic_iterator<Constant> first, basic_iterator<Constant> last, UnaryFunction&& fn) {
+    for_each(prefetch<true>{}, first, last, std::forward<UnaryFunction>(fn));
   }
 };
 
